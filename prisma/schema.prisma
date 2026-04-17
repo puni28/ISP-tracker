@@ -1,0 +1,77 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// AssetType values: POLE | NODE | AMPLIFIER | SPLITTER | COUPLER
+// CableType values: F2 | F4 | F6 | F8 | COAX | AERIAL
+// CableStatus values: ACTIVE | FAULTY | DECOMMISSIONED
+
+model NetworkAsset {
+  id            String   @id @default(cuid())
+  name          String
+  type          String   // POLE | NODE | AMPLIFIER | SPLITTER | COUPLER
+  lat           Float
+  lng           Float
+  address       String?
+  notes         String?
+  splitRatio    String?  // Splitter: "1:2" | "1:4" | "1:8" | "1:16" | "1:32"
+  couplerRatio  String?  // Coupler: e.g. "10dB"
+  insertionLoss Float?   // Coupler: dB
+  gainDb        Float?   // Amplifier: dB
+  inputLevel    Float?   // Amplifier
+  outputLevel   Float?   // Amplifier
+  nodeType      String?  // Node: "fiber" | "hfc"
+  portCount     Int?     // Node
+  poleHeight    Float?   // Pole: meters
+  poleMaterial  String?  // Pole: "wood" | "concrete" | "steel"
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  photos        Photo[]
+  cablesFrom    Cable[]  @relation("CableFrom")
+  cablesTo      Cable[]  @relation("CableTo")
+}
+
+model Cable {
+  id           String         @id @default(cuid())
+  name         String
+  type         String         // F2 | F4 | F6 | F8 | COAX | AERIAL
+  fromAssetId  String
+  toAssetId    String
+  fromAsset    NetworkAsset   @relation("CableFrom", fields: [fromAssetId], references: [id])
+  toAsset      NetworkAsset   @relation("CableTo",   fields: [toAssetId],   references: [id])
+  pathJson     String         // GeoJSON LineString
+  lengthMeters Float?
+  status       String         @default("ACTIVE") // ACTIVE | FAULTY | DECOMMISSIONED
+  notes        String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  readings     SignalReading[]
+}
+
+model SignalReading {
+  id        String   @id @default(cuid())
+  cableId   String
+  cable     Cable    @relation(fields: [cableId], references: [id])
+  direction String   // upstream | downstream
+  value     Float
+  unit      String   // dBm | dBmV
+  snr       Float?
+  takenAt   DateTime @default(now())
+  notes     String?
+}
+
+model Photo {
+  id          String       @id @default(cuid())
+  assetId     String
+  asset       NetworkAsset @relation(fields: [assetId], references: [id])
+  filename    String
+  url         String
+  annotations String?      // Fabric.js canvas JSON
+  notes       String?
+  takenAt     DateTime     @default(now())
+}
