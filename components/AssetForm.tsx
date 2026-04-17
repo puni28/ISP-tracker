@@ -106,11 +106,11 @@ export default function AssetForm({ initialData, assetId }: Props) {
   );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
       {/* Type selector */}
       <div>
         <label className="block text-xs text-slate-400 mb-1">Asset Type</label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
           {ASSET_TYPES.map((t) => (
             <button
               key={t}

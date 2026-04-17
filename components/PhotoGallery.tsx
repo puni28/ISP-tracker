@@ -66,7 +66,7 @@ export default function PhotoGallery({ assetId, photos }: Props) {
       )}
 
       {/* Grid */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {photos.map((p) => (
           <button key={p.id} onClick={() => setSelectedPhoto(p)} className="relative aspect-square rounded-xl overflow-hidden bg-slate-800 border border-slate-700">
             {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
       </head>
       <body className="min-h-screen bg-slate-900 text-slate-100">
-        <main className="pb-20">{children}</main>
+        <main className="pb-20 md:pb-0 md:pl-56">{children}</main>
         <BottomNav />
       </body>
     </html>

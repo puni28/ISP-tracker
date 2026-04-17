@@ -16,7 +16,7 @@ export default async function MapPage({ searchParams }: { searchParams: { focus?
   ]);
 
   return (
-    <div className="h-screen w-full fixed inset-0 pb-20">
+    <div className="h-screen w-full fixed inset-0 pb-20 md:pb-0 md:pl-56">
       <MapView assets={assets} cables={cables} focusId={searchParams.focus} />
     </div>
   );

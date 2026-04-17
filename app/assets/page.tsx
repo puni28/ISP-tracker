@@ -14,32 +14,19 @@ export default async function AssetsPage({ searchParams }: { searchParams: { typ
   });
 
   return (
-    <div className="p-4 max-w-lg mx-auto space-y-4">
+    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-4">
       <div className="flex items-center justify-between pt-2">
-        <h1 className="text-xl font-bold">Assets</h1>
-        <Link href="/assets/new" className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg">
+        <h1 className="text-xl md:text-2xl font-bold">Assets</h1>
+        <Link href="/assets/new" className="bg-blue-600 text-white text-sm px-4 py-2 md:px-5 md:py-2.5 rounded-lg font-medium">
           + Add
         </Link>
       </div>
 
-      {/* Filter chips */}
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
-        <Link
-          href="/assets"
-          className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full border ${
-            !type ? "bg-blue-600 border-blue-500 text-white" : "border-slate-600 text-slate-400"
-          }`}
-        >
-          All
-        </Link>
+      {/* Filter chips — scroll on mobile, wrap on tablet */}
+      <div className="flex gap-2 flex-nowrap md:flex-wrap overflow-x-auto md:overflow-visible pb-1 -mx-4 px-4 md:mx-0 md:px-0">
+        <Link href="/assets" className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full border ${!type ? "bg-blue-600 border-blue-500 text-white" : "border-slate-600 text-slate-400"}`}>All</Link>
         {ASSET_TYPES.map((t) => (
-          <Link
-            key={t}
-            href={`/assets?type=${t}`}
-            className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full border ${
-              type === t ? "bg-blue-600 border-blue-500 text-white" : "border-slate-600 text-slate-400"
-            }`}
-          >
+          <Link key={t} href={`/assets?type=${t}`} className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full border ${type === t ? "bg-blue-600 border-blue-500 text-white" : "border-slate-600 text-slate-400"}`}>
             {ASSET_LABELS[t]}
           </Link>
         ))}
@@ -49,24 +36,17 @@ export default async function AssetsPage({ searchParams }: { searchParams: { typ
         <div className="text-center py-16 text-slate-500">
           <div className="text-4xl mb-2">⬡</div>
           <p className="text-sm">No assets found.</p>
-          <Link href="/assets/new" className="text-blue-400 text-sm underline mt-1 inline-block">
-            Add one now
-          </Link>
+          <Link href="/assets/new" className="text-blue-400 text-sm underline mt-1 inline-block">Add one now</Link>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
           {assets.map((a) => {
             const cables = a._count.cablesFrom + a._count.cablesTo;
             return (
-              <Link
-                key={a.id}
-                href={`/assets/${a.id}`}
-                className="flex items-center gap-3 bg-slate-800 rounded-xl p-4 hover:bg-slate-750 border border-slate-700"
-              >
-                <span
-                  className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold"
-                  style={{ backgroundColor: ASSET_COLORS[a.type as AssetType] }}
-                >
+              <Link key={a.id} href={`/assets/${a.id}`}
+                className="flex items-center gap-3 bg-slate-800 rounded-xl p-4 hover:bg-slate-750 border border-slate-700 hover:border-slate-500 transition-colors">
+                <span className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold"
+                  style={{ backgroundColor: ASSET_COLORS[a.type as AssetType] }}>
                   {a.type.slice(0, 2)}
                 </span>
                 <div className="flex-1 min-w-0">
