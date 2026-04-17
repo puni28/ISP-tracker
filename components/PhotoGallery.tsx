@@ -10,16 +10,28 @@ export default function PhotoGallery({ assetId, photos }: Props) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setUploadError("");
+
     const fd = new FormData();
     fd.append("file", file);
     fd.append("assetId", assetId);
-    await fetch("/api/photos", { method: "POST", body: fd });
+
+    const res = await fetch("/api/photos", { method: "POST", body: fd });
+
+    if (!res.ok) {
+      const d = await res.json();
+      setUploadError(d.error ?? "Upload failed");
+      setUploading(false);
+      return;
+    }
+
     setUploading(false);
     router.refresh();
   }
@@ -34,24 +46,19 @@ export default function PhotoGallery({ assetId, photos }: Props) {
   return (
     <div className="space-y-4">
       {/* Upload button */}
-      <div className="flex gap-3">
+      <div className="flex flex-col gap-2">
         <button
-          onClick={() => inputRef.current?.click()}
+          onClick={() => { inputRef.current?.click(); setUploadError(""); }}
           disabled={uploading}
-          className="flex-1 flex items-center justify-center gap-2 border border-dashed border-slate-600 rounded-xl py-4 text-slate-400 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50"
+          className="flex items-center justify-center gap-2 border border-dashed border-slate-600 rounded-xl py-4 text-slate-400 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50"
         >
-          {uploading ? "Uploading…" : (
-            <><span className="text-2xl">📷</span><span className="text-sm">Take / Upload Photo</span></>
-          )}
+          {uploading
+            ? <span className="text-sm">Uploading…</span>
+            : <><span className="text-2xl">📷</span><span className="text-sm">Take / Upload Photo</span></>
+          }
         </button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          className="hidden"
-          onChange={handleFile}
-        />
+        <input ref={inputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFile} />
+        {uploadError && <p className="text-red-400 text-xs text-center">{uploadError}</p>}
       </div>
 
       {photos.length === 0 && (
@@ -71,15 +78,15 @@ export default function PhotoGallery({ assetId, photos }: Props) {
         ))}
       </div>
 
-      {/* Modal */}
+      {/* Full-screen modal */}
       {selectedPhoto && (
         <div className="fixed inset-0 z-50 bg-black/90 flex flex-col" onClick={() => setSelectedPhoto(null)}>
-          <div className="flex justify-between items-center p-4" onClick={(e) => e.stopPropagation()}>
+          <div className="flex justify-between items-center p-4 safe-top" onClick={(e) => e.stopPropagation()}>
             <span className="text-sm text-slate-400">{new Date(selectedPhoto.takenAt).toLocaleString()}</span>
-            <div className="flex gap-3">
-              <a href={selectedPhoto.url} download className="text-blue-400 text-sm">Download</a>
-              <button onClick={() => deletePhoto(selectedPhoto.id)} className="text-red-400 text-sm">Delete</button>
-              <button onClick={() => setSelectedPhoto(null)} className="text-slate-400 text-sm">✕</button>
+            <div className="flex gap-4">
+              <a href={selectedPhoto.url} download className="text-blue-400 text-sm py-2 px-1">Download</a>
+              <button onClick={() => deletePhoto(selectedPhoto.id)} className="text-red-400 text-sm py-2 px-1">Delete</button>
+              <button onClick={() => setSelectedPhoto(null)} className="text-white text-xl py-2 px-1">✕</button>
             </div>
           </div>
           <div className="flex-1 flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
@@ -87,7 +94,7 @@ export default function PhotoGallery({ assetId, photos }: Props) {
             <img src={selectedPhoto.url} alt="Full size" className="max-w-full max-h-full object-contain rounded-lg" />
           </div>
           {selectedPhoto.notes && (
-            <p className="p-4 text-sm text-slate-300 text-center" onClick={(e) => e.stopPropagation()}>{selectedPhoto.notes}</p>
+            <p className="p-4 text-sm text-slate-300 text-center pb-8" onClick={(e) => e.stopPropagation()}>{selectedPhoto.notes}</p>
           )}
         </div>
       )}

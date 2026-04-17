@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { CABLE_STATUS } from "@/lib/constants";
 
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
   const cable = await prisma.cable.findUnique({
@@ -17,6 +18,10 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const body = await req.json();
+
+  if (body.status && !CABLE_STATUS.includes(body.status)) {
+    return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+  }
 
   const cable = await prisma.cable.update({
     where: { id: params.id },

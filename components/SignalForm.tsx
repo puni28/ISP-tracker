@@ -11,6 +11,7 @@ export default function SignalForm({ cableId, defaultUnit }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({ direction: "downstream", value: "", unit: defaultUnit, snr: "", notes: "" });
 
   function set(k: string, v: string) { setForm((f) => ({ ...f, [k]: v })); }
@@ -18,11 +19,21 @@ export default function SignalForm({ cableId, defaultUnit }: Props) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await fetch("/api/signal-readings", {
+    setError("");
+
+    const res = await fetch("/api/signal-readings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ cableId, ...form, value: parseFloat(form.value), snr: form.snr ? parseFloat(form.snr) : null }),
     });
+
+    if (!res.ok) {
+      const d = await res.json();
+      setError(d.error ?? "Failed to save reading");
+      setLoading(false);
+      return;
+    }
+
     setForm({ direction: "downstream", value: "", unit: defaultUnit, snr: "", notes: "" });
     setOpen(false);
     setLoading(false);
@@ -69,8 +80,9 @@ export default function SignalForm({ cableId, defaultUnit }: Props) {
         <label className="block text-xs text-slate-400 mb-1">Notes</label>
         <input type="text" value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Optional notes" className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500" />
       </div>
+      {error && <p className="text-red-400 text-xs">{error}</p>}
       <div className="flex gap-2">
-        <button type="button" onClick={() => setOpen(false)} className="flex-1 py-2 rounded-lg border border-slate-600 text-slate-400 text-sm">Cancel</button>
+        <button type="button" onClick={() => { setOpen(false); setError(""); }} className="flex-1 py-2 rounded-lg border border-slate-600 text-slate-400 text-sm">Cancel</button>
         <button type="submit" disabled={loading} className="flex-1 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold disabled:opacity-50">{loading ? "Saving…" : "Save Reading"}</button>
       </div>
     </form>

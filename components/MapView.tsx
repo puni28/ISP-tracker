@@ -120,9 +120,11 @@ export default function MapView({ assets, cables, focusId }: Props) {
 
   return (
     <div className="relative w-full h-full">
-      {/* Leaflet CSS */}
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
+      {!initialized && (
+        <div className="absolute inset-0 flex items-center justify-center bg-slate-900 z-10">
+          <div className="text-slate-400 text-sm">Loading map…</div>
+        </div>
+      )}
       <div ref={mapRef} className="w-full h-full" />
 
       {/* Layer toggle */}

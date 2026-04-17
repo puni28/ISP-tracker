@@ -110,15 +110,15 @@ export default function AssetForm({ initialData, assetId }: Props) {
       {/* Type selector */}
       <div>
         <label className="block text-xs text-slate-400 mb-1">Asset Type</label>
-        <div className="grid grid-cols-5 gap-1">
+        <div className="grid grid-cols-3 gap-2">
           {ASSET_TYPES.map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => set("type", t)}
-              className={`py-2 text-xs rounded-lg border transition-colors ${
+              className={`py-2.5 text-sm rounded-lg border transition-colors ${
                 form.type === t
-                  ? "bg-blue-600 border-blue-500 text-white"
+                  ? "bg-blue-600 border-blue-500 text-white font-medium"
                   : "bg-slate-700 border-slate-600 text-slate-300"
               }`}
             >
